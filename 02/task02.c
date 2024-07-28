@@ -51,7 +51,7 @@ int main() {
   while (1) {
     printf("> ");
     fgets(command, sizeof(command), stdin);
-    command[strcspn(command, "\n")] = 0; // Удаляем символ перевода строки
+    command[strcspn(command, "\n")] = 0; // Удаляем символ переноса строки
 
     // Разделяем строку на аргументы
     int argc = 0;
