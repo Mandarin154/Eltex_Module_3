@@ -4,6 +4,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <time.h>
+#include <string.h>
 
 #define MAX_NUMBERS 100
 
@@ -35,41 +36,42 @@ int main(int argc, char *argv[]) {
     perror("fork");
     return 1;
   }
-    FILE *fp = fopen("random_numbers.txt", "r");
     if (pid == 0) { // Дочерний процесс
+    FILE *fp = fopen("random_numbers.txt", "r");
+    if (fp == NULL) {
+      perror("fopen");
+      return 1;
+    }
     close(fd[0]);
     srand(time(NULL)); 
     char data [MAX_NUMBERS];
     while (scanf(fp, "%[\n]\n", data) != EOF){
-        write(fd[1], data, sizeof(data)+1);
+        write(fd[1], data, strlen(data)+1);
     }
     /*for (int i = 0; i < num_numbers; i++) {
       int random_number = rand() % 100; 
       write(fd[1], &random_number, sizeof(int));
     }*/
-
+   
     close(fd[1]);
 
     exit(0);
   } else { // Родительский процесс
     close(fd[1]);
 
-    fp = fopen("random_numbers.txt", "w");
-    if (fp == NULL) {
-      perror("fopen");
-      return 1;
+    char data [MAX_NUMBERS];
+    while (read (fd[0], data, sizeof(data) >0)){
+        printf("%s\n", data);
     }
-
     // Получаем числа от дочернего процесса и выводим их на экран и в файл
-    for (int i = 0; i < num_numbers; i++) {
+   /* for (int i = 0; i < num_numbers; i++) {
       int number;
       read(fd[0], &number, sizeof(int));
       printf("%d \n", number);
       fprintf(fp, "%d\n", number);
-    }
+    }*/
 
     close(fd[0]);
-    fclose(fp);
 
     wait(NULL);
   }
